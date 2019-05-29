@@ -26,12 +26,12 @@ def train(epoch):
     for batch_idx, (inputs, loc_targets, cls_targets) in enumerate(trainloader):
         print('batch_idx',batch_idx)
         inputs = Variable(inputs.cuda())
-        loc_targets = Variable(loc_targets.cuda())
+
         cls_targets = Variable(cls_targets.cuda())
 
         optimizer.zero_grad()
-        loc_preds, cls_preds = net(inputs)
-        loss = criterion(loc_preds, loc_targets, cls_preds, cls_targets)
+        cls_preds = net(inputs)
+        loss = criterion(cls_preds, cls_targets)
 
         loss.backward()
 
@@ -50,8 +50,8 @@ def test(epoch):
         loc_targets = Variable(loc_targets.cuda())
         cls_targets = Variable(cls_targets.cuda())
 
-        loc_preds, cls_preds = net(inputs)
-        loss = criterion(loc_preds, loc_targets, cls_preds, cls_targets)
+        cls_preds = net(inputs)
+        loss = criterion(cls_preds, cls_targets)
         test_loss += loss.data.item()
         print('test_loss: %.3f | avg_loss: %.3f' % (loss.data.item(), test_loss / (batch_idx + 1)))
 
@@ -67,7 +67,7 @@ def test(epoch):
         }
         if not os.path.isdir('checkpoint-resnet31'):
             os.mkdir('checkpoint-resnet31')
-        torch.save(state, './checkpoint/ckpt.pth')
+        torch.save(state, 'G:\PycharmProjects\others\ckpt.pth')
         best_loss = test_loss
 if __name__ == '__main__':
     assert torch.cuda.is_available(), 'Error: CUDA not found!'
@@ -80,7 +80,7 @@ if __name__ == '__main__':
         transforms.ToTensor(),
         transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
     ])
-    if False:
+    if True:
         trainset = VocDataset(root=r'D:\drone_image_and_annotation_mixed\train', train=True, transform=transform, input_size=1024)
         trainloader = torch.utils.data.DataLoader(trainset, batch_size=3, shuffle=True, num_workers=3,
                                                   collate_fn=trainset.collate_fn)
@@ -102,10 +102,10 @@ if __name__ == '__main__':
 
     the_first_time_to_run_this_program=True
     if the_first_time_to_run_this_program==True:
-        net.load_state_dict(torch.load(r'G:\PycharmProjects\pytorch-retinanet-resnet50\scripts\model\retinanet-50-pretrain.pth'))
+        net.load_state_dict(torch.load(r'G:\PycharmProjects\others\tar_net_dict.pt'))
     else:
         print('==> Resuming from checkpoint..')
-        checkpoint = torch.load('./checkpoint/ckpt.pth')
+        checkpoint = torch.load(r'G:\PycharmProjects\others\ckpt.pth')
         net.load_state_dict(checkpoint['net'])
         best_loss = checkpoint['loss']
         best_loss = float('inf')

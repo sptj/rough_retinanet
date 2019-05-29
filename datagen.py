@@ -158,7 +158,6 @@ class VocDataset(data.Dataset):
                 if (len(box) != 0):
                     self.boxes.append(torch.Tensor(box))
                     # because the annotations are not precious, so i use 0 to override
-
                     self.labels.append(torch.LongTensor([0]*len(classes_text)))
                     self.fnames.append(filename)
             except:

@@ -21,11 +21,11 @@ class RetinaNet(nn.Module):
         for fm in fms:
             phantom_pred = self.phantom_head(fm)
             mavic_pred = self.mavic_head(fm)
-            phantom_pred = phantom_pred.permute(0,2,3,1).contiguous().view(x.size(0),-1,4)
+            phantom_pred = phantom_pred.permute(0,2,3,1).contiguous().view(x.size(0),-1,1)
             mavic_pred = mavic_pred.permute(0,2,3,1).contiguous().view(x.size(0),-1,1)
             phantom_preds.append(phantom_pred)
             mavic_preds.append(mavic_pred)
-        return torch.cat(phantom_preds,1), torch.cat(mavic_preds,1)
+        return torch.cat(phantom_preds,1)#, torch.cat(mavic_preds,1)
     def initialize(self):
         """Initializes the model parameters"""
         for m in self.modules():

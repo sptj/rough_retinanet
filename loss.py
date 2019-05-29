@@ -59,7 +59,7 @@ class FocalLoss(nn.Module):
         loss = -w * pt.log() / 2
         return loss.sum()
 
-    def forward(self, loc_preds, loc_targets, cls_preds, cls_targets):
+    def forward(self,cls_preds, cls_targets):
         '''Compute loss between (loc_preds, loc_targets) and (cls_preds, cls_targets).
 
         Args:
@@ -75,16 +75,7 @@ class FocalLoss(nn.Module):
         pos = cls_targets > 0  # [N,#anchors]
         num_pos = pos.data.long().sum()
 
-        ################################################################
-        # loc_loss = SmoothL1Loss(pos_loc_preds, pos_loc_targets)
-        ################################################################
-        mask = pos.unsqueeze(2).expand_as(loc_preds)  # [N,#anchors,4]
-        masked_loc_preds = loc_preds[mask].view(-1, 4)  # [#pos,4]
-        masked_loc_targets = loc_targets[mask].view(-1, 4)  # [#pos,4]
-        loc_loss = F.smooth_l1_loss(masked_loc_preds, masked_loc_targets, size_average=False)
 
-        ################################################################
-        # cls_loss = FocalLoss(loc_preds, loc_targets)
         ################################################################
         pos_neg = cls_targets > -1  # exclude ignored anchors
         # print(pos_neg.shape)
@@ -94,5 +85,5 @@ class FocalLoss(nn.Module):
         cls_loss = self.focal_loss_alt(masked_cls_preds, cls_targets[pos_neg])
 
         # print('loc_loss: %.3f | cls_loss: %.3f' % (loc_loss.data.item()/num_pos._cast_float(), cls_loss.data.item()/num_pos._cast_float()), end=' | ')
-        loss = (loc_loss + cls_loss) / num_pos.float()
+        loss = (cls_loss) / num_pos.float()
         return loss
